@@ -24,7 +24,9 @@
         }
     ],
     "require": {
-        "php": ">=8.0"
+        "php": ">=8.0",
+        "psr/container": "^2.0",
+        "psr/event-dispatcher": "^1.0"
     },
     "extra": {
         "branch-alias": {
