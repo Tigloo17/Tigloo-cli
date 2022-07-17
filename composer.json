@@ -1,0 +1,34 @@
+{
+    "name": "tigloo/cli",
+    "description": "Personnal cli for all application.",
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "license": "MIT",
+    "type": "library",
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/Tigloo17/Tigloo-cli"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Tigloo\\": "src/Tigloo/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Collard Jean-Michel",
+            "email": "collajm@hotmail.com",
+            "role": "Lead Developer"
+        }
+    ],
+    "require": {
+
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
+}
