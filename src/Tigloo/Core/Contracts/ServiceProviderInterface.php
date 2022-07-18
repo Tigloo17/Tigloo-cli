@@ -7,7 +7,7 @@ use Tigloo\Container\Contracts\ContainerInterface;
 interface ServiceProviderInterface
 {
     /**
-     * Enregistre les éléments des providers dans le container.
+     * Interface enregistreur d'éléments fournis, par les providers, dans le container.
      * 
      * @param ContainerInterface $container
      * 
