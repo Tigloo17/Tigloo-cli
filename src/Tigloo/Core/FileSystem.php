@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Tigloo\Core;
 
-use Tigloo\Container\Contracts\ContainerInterface;
 use Tigloo\Collection\Contracts\CollectionInterface;
 use Tigloo\Collection\Collection;
 use DirectoryIterator;
@@ -11,20 +10,17 @@ use RuntimeException;
 
 final class FileSystem
 {
-    private ContainerInterface $app;
-
     private CollectionInterface $factory;
 
-    public function __construct(ContainerInterface $app)
+    public function __construct()
     {
-        $this->app = $app;
         $this->factory = new Collection();
     }
     
     public function load(string $path): FileSystem
     {
         if (null !== $path || ! file_exists($path)) {
-            throw new RuntimeException();
+            throw new RuntimeException(sprintf('Le chemin d\'accès "%s" n\'existe pas', $path));
         }
 
         if (is_file($path)) {
@@ -32,7 +28,7 @@ final class FileSystem
         } elseif (is_dir($path)) {
             $collection = new Collection($this->openDirectory($path));
         }
-        
+
         $this->factory->merge($collection);
         return $this;
     }

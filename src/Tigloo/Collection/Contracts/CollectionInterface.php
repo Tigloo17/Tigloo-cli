@@ -21,5 +21,9 @@ interface CollectionInterface extends Countable, ArrayAccess
 
     public function merge(CollectionInterface $collection): CollectionInterface;
 
+    public function isEmpty(): bool;
+
+    public function has(string $name): bool;
+    
     public function getIterator(): ArrayIterator;
 }

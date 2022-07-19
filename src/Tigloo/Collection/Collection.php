@@ -62,6 +62,16 @@ final class Collection implements CollectionInterface
         return new static(array_values($this->collection));
     }
 
+    public function isEmpty(): bool
+    {
+        return empty($this->collection);
+    }
+
+    public function has(string $name): bool
+    {
+        return $this->offsetExists($name);
+    }
+
     public function getIterator(): ArrayIterator
     {
         return new ArrayIterator($this->collection);

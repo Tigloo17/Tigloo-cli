@@ -14,13 +14,18 @@ class Application extends Container
 {
     protected string $pathbase;
 
+    protected string $charset;
+
     protected array $providers = [];
 
     private bool $booted = false;
     
-    public function __construct(string $pathbase)
+    public function __construct(string $pathbase, string $charset = 'UTF-8')
     {
         $this->pathbase = $pathbase;
+        $this->charset = $charset;
+
+        $this->registerContainer();
     }
     
     /**
@@ -60,6 +65,34 @@ class Application extends Container
         foreach ($this->providers as $provider) {
             if ($provider instanceof EventListenerProviderInterface) {
                 $provider->subscriber($this, $this->get('event.dispatcher'));
+            }
+        }
+    }
+
+    private function registerContainer()
+    {
+        $this->set('path.base', rtrim($this->pathbase, '\/'));
+        $this->set('path.config', $this->get('path.base').DIRECTORY_SEPARATOR.'config');
+        $this->set('path.public', $this->get('path.base').DIRECTORY_SEPARATOR.'public');
+        $this->set('path.app', $this->get('path.base').DIRECTORY_SEPARATOR.'app');
+        $this->set('path.resources', $this->get('path.base').DIRECTORY_SEPARATOR.'resources');
+        $this->set('charset', $this->charset);
+
+        $configuration = (new FileSystem())->load($this->get('path.config'))->output();
+        if (! $configuration->isEmpty()) {
+            $iterator = $configuration->getIterator();
+            $iterator->rewind();
+            while ($iterator->valid()) {
+                $this->set($iterator->key(), $iterator->current());
+                $iterator->next();
+            }
+        }
+
+        if ($this->has('providers')) {
+            foreach ($this->get('providers') as $provider) {
+                if (in_array(ServiceProviderInterface::class, class_implements($provider))) {
+                    $this->register(new $provider());
+                }
             }
         }
     }
