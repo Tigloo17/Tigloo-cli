@@ -49,7 +49,11 @@ class EventDispatcher implements EventDispatcherInterface
     public function getListenersForEvent(object $event): iterable
     {
         if (isset($this->listeners[$event::class])) {
+            if (! isset($this->sorted[$event::class])) {
+                $this->sortListeners($event::class);
+            }
 
+            return $this->sorted[$event::class];
         }
 
         return [];
@@ -58,7 +62,7 @@ class EventDispatcher implements EventDispatcherInterface
     /**
      * {@inheritdoc}
      */
-    public function getListeners(string $namespace): array
+    public function getListeners(): array
     {
         return $this->listeners;
     }
@@ -74,7 +78,6 @@ class EventDispatcher implements EventDispatcherInterface
 
     /**
      * {@inheritdoc}
-     * $namespace => [[[], $priority], [], []];
      */
     public function addSubscriber(EventSubscriberInterface $subscriber): void
     {
@@ -85,6 +88,26 @@ class EventDispatcher implements EventDispatcherInterface
                 foreach ($listener as $listen) {
                     $this->addListener($namespace, $listen[0], $listen[1]);
                 }
+            }
+        }
+    }
+
+    /**
+     * Organise par ordre décroissant et le stock dans une nouvelle variable.
+     * 
+     * @param string $namespace
+     * 
+     * @return void
+     */
+    private function sortListeners(string $namespace): void
+    {
+        $sorted = $this->listeners[$namespace];
+        krsort($sorted);
+        $this->sorted[$namespace] = [];
+
+        foreach ($sorted as $listeners) {
+            foreach ($listeners as $listener) {
+                $this->sorted[$namespace][] = $listener;
             }
         }
     }

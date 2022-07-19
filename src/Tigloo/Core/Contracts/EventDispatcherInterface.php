@@ -15,7 +15,7 @@ interface EventDispatcherInterface extends PsrEventDispatcherInterface, Listener
      * 
      * @return array
      */
-    public function getListeners(string $namespace): array;
+    public function getListeners(): array;
 
     /**
      * Ajoute un récepteur d'événement qui écoute un émetteur spécifique.

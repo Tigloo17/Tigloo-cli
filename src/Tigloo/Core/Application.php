@@ -24,7 +24,6 @@ class Application extends Container
         $this->pathbase = $pathbase;
     }
     
-
     /**
      * Enregistre les services providers
      * 
@@ -50,6 +49,8 @@ class Application extends Container
         if (! $this->booted) {
             $this->boot();
         }
+
+        $response = $this->handle();
     }
 
     /**
@@ -59,15 +60,15 @@ class Application extends Container
     {
         $this->booted = true;
         
-        foreach ($this->get('providers') as $provider) {
+        foreach ($this->providers as $provider) {
             if ($provider instanceof EventListenerProviderInterface) {
                 $provider->subscribe($this, $this->get('event.dispatcher'));
             }
         }
     }
 
-    public function emitter(): void
+    public function handle() // retourne une route...
     {
-
+        return [];
     }
 }
