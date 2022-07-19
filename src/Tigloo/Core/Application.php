@@ -7,7 +7,6 @@ use Tigloo\Container\Container;
 use Tigloo\Core\Contracts\EventListenerProviderInterface;
 use Tigloo\Core\Contracts\ServiceProviderInterface;
 
-
 /**
  * [Description Application]
  */
@@ -49,8 +48,6 @@ class Application extends Container
         if (! $this->booted) {
             $this->boot();
         }
-
-        $response = $this->handle();
     }
 
     /**
@@ -62,13 +59,8 @@ class Application extends Container
         
         foreach ($this->providers as $provider) {
             if ($provider instanceof EventListenerProviderInterface) {
-                $provider->subscribe($this, $this->get('event.dispatcher'));
+                $provider->subscriber($this, $this->get('event.dispatcher'));
             }
         }
-    }
-
-    public function handle() // retourne une route...
-    {
-        return [];
     }
 }

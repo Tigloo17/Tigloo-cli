@@ -16,5 +16,5 @@ interface EventListenerProviderInterface
      * 
      * @return void
      */
-    public function subscribe(ContainerInterface $app, EventDispatcherInterface $dispatcher): void;
+    public function subscriber(ContainerInterface $app, EventDispatcherInterface $dispatcher): void;
 }

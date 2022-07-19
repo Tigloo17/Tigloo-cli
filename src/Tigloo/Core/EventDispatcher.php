@@ -7,7 +7,7 @@ use Psr\EventDispatcher\StoppableEventInterface;
 use Tigloo\Core\Contracts\EventDispatcherInterface;
 use Tigloo\Core\Contracts\EventSubscriberInterface;
 
-class EventDispatcher implements EventDispatcherInterface
+final class EventDispatcher implements EventDispatcherInterface
 {
 
     /**
