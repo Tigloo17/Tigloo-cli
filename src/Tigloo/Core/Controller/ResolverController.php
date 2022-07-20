@@ -3,10 +3,10 @@ declare(strict_types = 1);
 
 namespace Tigloo\Core\Controller;
 
+use Tigloo\Container\Contracts\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Reflector;
 use RuntimeException;
-use Tigloo\Container\Contracts\ContainerInterface;
 
 class ResolverController
 {
@@ -39,9 +39,37 @@ class ResolverController
         return $controller;
     }
 
-    public function getAttributes(ServerRequestInterface $request, object $controller)
+    public function getAttributes(ServerRequestInterface $request, object $controller): array
     {
+        $attributes = ('GET' !== $request->getMethod()) ? $request->getParsedBody() : $request->getAttributes();
+        $reflector = $controller->getReflector();
 
+        foreach ($reflector->getParameters() as $params) {
+            if ($params->isVariadic()) {
+                $parameters[] = $attributes;
+                continue;
+            } else {
+                foreach ($attributes as $key => $value) {
+                    if ($params->getName() === $key) {
+                        $args = $value;
+                        break;
+                    }
+                }
+
+                if (! empty($args)) {
+                    $parameters[] = $args;
+                } else {
+                    if ($params->isDefaultValueAvailable()) {
+                        $parameters = $params->getDefaultValue();
+                    } elseif ($params->allowNull()) {
+                        $parameters[] = null;
+                    } else {
+                        throw new RuntimeException('Bad Request', 400);
+                    }
+                }
+            }
+        }
+        return $parameters ?? [];
     }
 
     private function controller(Reflector $reflector, ContainerInterface $app): object
