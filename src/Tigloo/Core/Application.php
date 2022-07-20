@@ -43,7 +43,6 @@ class Application extends Container
 
     /**
      * Démarrer l'application.
-     * 
      * Traite la demande et délivre une réponse
      * 
      * @return void
@@ -53,6 +52,10 @@ class Application extends Container
         if (! $this->booted) {
             $this->boot();
         }
+
+        $response = $this->get('http.kernel')->handle($this->get('request'));
+        $emitter = new Emitter();
+        $emitter->emit($response);
     }
 
     /**
@@ -69,7 +72,12 @@ class Application extends Container
         }
     }
 
-    private function registerContainer()
+    /**
+     * Enregistre les fichiers de configuration dans le container
+     * 
+     * @return void
+     */
+    private function registerContainer(): void
     {
         $this->set('path.base', rtrim($this->pathbase, '\/'));
         $this->set('path.config', $this->get('path.base').DIRECTORY_SEPARATOR.'config');
@@ -82,6 +90,7 @@ class Application extends Container
         if (! $configuration->isEmpty()) {
             $iterator = $configuration->getIterator();
             $iterator->rewind();
+            
             while ($iterator->valid()) {
                 $this->set($iterator->key(), $iterator->current());
                 $iterator->next();
