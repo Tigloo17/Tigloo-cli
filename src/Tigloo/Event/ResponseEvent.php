@@ -10,7 +10,7 @@ class ResponseEvent extends RequestEvent
 {
     private ResponseInterface $response;
 
-    public function __construct(ServerRequestInterface $request, ResponseInterface $response)
+    public function __construct(ServerRequestInterface $request, ?ResponseInterface $response = null)
     {
         $this->response = $response;
         parent::__construct($request);

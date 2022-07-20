@@ -6,6 +6,7 @@ namespace Tigloo\Core;
 use Tigloo\Container\Container;
 use Tigloo\Core\Contracts\EventListenerProviderInterface;
 use Tigloo\Core\Contracts\ServiceProviderInterface;
+use Tigloo\Routing\RouteCollection;
 
 /**
  * [Description Application]
@@ -58,10 +59,24 @@ class Application extends Container
         $emitter->emit($response);
     }
 
+    public function getRoutes(): ?RouteCollection
+    {
+        $file = $this->get('path.app').DIRECTORY_SEPARATOR.'routes.php';
+        if (file_exists($file)) {
+            if (@require $file) {
+                if (isset($route) && $route instanceof RouteCollection) {
+                    return $route;
+                }
+            }
+        }
+
+        return null;
+    }
+
     /**
      * Démarre tous les providers.
      */
-    public function boot(): void
+    private function boot(): void
     {
         $this->booted = true;
         

@@ -5,10 +5,10 @@ namespace Tigloo\Core;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
-use RuntimeException;
 use Tigloo\Core\Contracts\EventDispatcherInterface;
 use Tigloo\Core\Controller\ResolverController;
-use Tigloo\Event\RequestEvent;
+use Tigloo\Event\{ErrorsEvent, RequestEvent, ResponseEvent};
+use RuntimeException;
 
 final class Runner
 {
@@ -33,6 +33,7 @@ final class Runner
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try {
+
             $event = new RequestEvent($request);
             $this->dispatcher->dispatch($event);
 
@@ -51,7 +52,11 @@ final class Runner
             return $event->getResponse();
 
         } catch (\Exception $e) {
-            
+
+            $event = new ErrorsEvent($e, $request);
+            $this->dispatcher->dispatch($event);
+
+            return $event->getResponse();
         }
     }
 }
