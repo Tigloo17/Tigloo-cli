@@ -43,15 +43,6 @@ final class SessionListener implements EventSubscriberInterface
         $event->handleRequest($request);
     }
 
-    public function getSubscriberForEvent(): array
-    {
-        return [
-            RequestEvent::class => [
-                [[$this, 'sessionStart'], 100],
-            ]
-        ];
-    }
-
     private function generateToken(ServerRequestInterface $request): ServerRequestInterface
     {
         $name = uniqid(self::KEY);
@@ -71,5 +62,14 @@ final class SessionListener implements EventSubscriberInterface
         }
         $token = $pairKey[$name];
         return hash_equals($token, $value);
+    }
+
+    public function getSubscriberForEvent(): array
+    {
+        return [
+            RequestEvent::class => [
+                [[$this, 'sessionStart'], 100],
+            ]
+        ];
     }
 }

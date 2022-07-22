@@ -22,7 +22,7 @@ final class HttpServiceProvider implements ServiceProviderInterface, EventListen
             return new EventDispatcher();
         });
 
-        $app->set('http.kernel', function ($app) {
+        $app->set('kernel', function ($app) {
             return new Runner(
                 $app->get('event.dispatcher'), 
                 $app->get('controller.resolver')

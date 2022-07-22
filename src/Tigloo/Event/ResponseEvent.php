@@ -8,7 +8,7 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class ResponseEvent extends RequestEvent
 {
-    private ResponseInterface $response;
+    private ?ResponseInterface $response = null;
 
     public function __construct(ServerRequestInterface $request, ?ResponseInterface $response = null)
     {
@@ -16,7 +16,7 @@ class ResponseEvent extends RequestEvent
         parent::__construct($request);
     }
 
-    public function getResponse(): ResponseInterface
+    public function getResponse(): ?ResponseInterface
     {
         return $this->response;
     }

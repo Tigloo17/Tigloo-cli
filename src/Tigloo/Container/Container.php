@@ -22,7 +22,7 @@ class Container implements ContainerInterface
     /**
      * @var SplObjectStorage
      */
-    private SplObjectStorage $factories;
+    private  $factories;
 
     /**
      * @var array

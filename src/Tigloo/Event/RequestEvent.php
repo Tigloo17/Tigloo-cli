@@ -5,7 +5,7 @@ namespace Tigloo\Event;
 
 use Psr\Http\Message\ServerRequestInterface;
 
-final class RequestEvent
+class RequestEvent
 {
     private ServerRequestInterface $request;
 

@@ -35,7 +35,7 @@ final class RouteListener implements EventSubscriberInterface
     {
         return [
             RequestEvent::class => [
-                [[$this, 'routeMatching'], 50]
+                [[$this, 'routeMatching'], 80]
             ]
         ];
     }

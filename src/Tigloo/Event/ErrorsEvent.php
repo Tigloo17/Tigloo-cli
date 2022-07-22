@@ -5,7 +5,7 @@ namespace Tigloo\Event;
 
 use Throwable;
 
-class ErrorsEvent extends ResponseEvent
+final class ErrorsEvent extends ResponseEvent
 {
     private Throwable $errors;
 

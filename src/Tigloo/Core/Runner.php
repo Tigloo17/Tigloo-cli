@@ -55,7 +55,6 @@ final class Runner
 
             $event = new ErrorsEvent($e, $request);
             $this->dispatcher->dispatch($event);
-
             return $event->getResponse();
         }
     }

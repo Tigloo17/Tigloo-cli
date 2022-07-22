@@ -19,17 +19,25 @@ final class FileSystem
     
     public function load(string $path): FileSystem
     {
-        if (null !== $path || ! file_exists($path)) {
+        if (null === $path || ! file_exists($path)) {
             throw new RuntimeException(sprintf('Le chemin d\'accès "%s" n\'existe pas', $path));
         }
 
         if (is_file($path)) {
-            $collection = new Collection($this->openFile($path));
+            $import = $this->openFile($path);
         } elseif (is_dir($path)) {
-            $collection = new Collection($this->openDirectory($path));
+            $import = $this->openDirectory($path); 
         }
-
-        $this->factory->merge($collection);
+        
+        if (! empty($import)) {
+            foreach ($import as $key => $value) {
+                $collection = (is_numeric($key) && is_array($value)) 
+                    ? new Collection($value) 
+                    : new Collection($import);
+                $this->factory = $this->factory->merge($collection);
+            }
+        }
+        
         return $this;
     }
 
@@ -57,7 +65,6 @@ final class FileSystem
                 }
             }
         }
-
         return $buffer ?? [];
     }
 }
