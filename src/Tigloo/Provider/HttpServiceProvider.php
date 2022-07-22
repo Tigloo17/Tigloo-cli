@@ -8,41 +8,47 @@ use Tigloo\Core\Contracts\EventDispatcherInterface;
 use Tigloo\Core\Contracts\EventListenerProviderInterface;
 use Tigloo\Core\Contracts\ServiceProviderInterface;
 use Tigloo\Core\EventDispatcher;
+use Tigloo\EventListener\{SessionListener, RouteListener};
 use Tigloo\Core\Runner;
+use Tigloo\Routing\Router;
 use Tigloo\Core\Controller\ResolverController;
 use GuzzleHttp\Psr7\ServerRequest;
-use Tigloo\EventListener\SessionListener;
 
 final class HttpServiceProvider implements ServiceProviderInterface, EventListenerProviderInterface
 {
-    public function register(ContainerInterface $container): void
+    public function register(ContainerInterface $app): void
     {
-        $container->set('event.dispatcher', function () {
+        $app->set('event.dispatcher', function () {
             return new EventDispatcher();
         });
 
-        $container->set('http.kernel', function ($container) {
+        $app->set('http.kernel', function ($app) {
             return new Runner(
-                $container->get('event.dispatcher'), 
-                $container->get('controller.resolver')
+                $app->get('event.dispatcher'), 
+                $app->get('controller.resolver')
             );
         });
 
-        $container->set('controller.resolver', function ($container) {
-            return new ResolverController($container);
+        $app->set('controller.resolver', function ($app) {
+            return new ResolverController($app);
         });
 
-        $container->set('request.factory', $container->factory(function () {
+        $app->set('request.factory', $app->factory(function () {
             return ServerRequest::fromGlobals();
         }));
 
-        $container->set('request', function ($container) {
-            return $container->get('request.factory');
+        $app->set('request', function ($app) {
+            return $app->get('request.factory');
+        });
+
+        $app->set('router', function ($app) {
+            return new Router($app->getRoutes());
         });
     }
 
     public function subscriber(ContainerInterface $app, EventDispatcherInterface $dispatcher): void
     {
         $dispatcher->addSubscriber(new SessionListener());
+        $dispatcher->addSubscriber(new RouteListener($app->get('router')));
     } 
 }

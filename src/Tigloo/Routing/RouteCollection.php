@@ -3,10 +3,12 @@ declare(strict_types = 1);
 
 namespace Tigloo\Routing;
 
-final class RouteCollection
+use Tigloo\Routing\Contracts\RouteInterface;
+
+final class RouteCollection implements RouteInterface
 {
     private array $routes = [];
-    
+
     public function get(string $pattern, object|string $action): Route
     {
         return $this->addRoute('GET', $pattern, $action);
