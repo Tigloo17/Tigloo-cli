@@ -39,22 +39,23 @@ final class Runner
 
             $controller = $this->resolver->getController($event->getRequest());
             $attributes = $this->resolver->getAttributes($event->getRequest(), $controller);
-
+            
             $response = $controller($attributes);
-
+            
             if (! $response instanceof ResponseInterface) {
                 throw new RuntimeException('Not Implemented', 501);
             }
             
-            $event = new ResponseEvent($request, $response);
+            $event = new ResponseEvent($event->getRequest(), $response);
             $this->dispatcher->dispatch($event);
 
             return $event->getResponse();
 
         } catch (\Exception $e) {
-
+            
             $event = new ErrorsEvent($e, $request);
             $this->dispatcher->dispatch($event);
+
             return $event->getResponse();
         }
     }

@@ -99,7 +99,7 @@ class ResolverController
                     $instance = new $class();
 
                     if ($instance instanceof AbstractController) {
-                        $instance = $instance->setContainer($this->app);
+                        $instance = $instance->setApp($this->app);
                     }
 
                     $controller = $this->reflector->invokeArgs($instance, $arguments);

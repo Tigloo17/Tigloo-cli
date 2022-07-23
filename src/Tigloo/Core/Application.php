@@ -15,18 +15,20 @@ class Application extends Container
 {
     protected string $pathbase;
 
-    protected string $charset;
+    protected string $charset = 'UTF-8';
+
+    protected bool $debug = false;
 
     protected array $providers = [];
 
     private bool $booted = false;
     
-    public function __construct(string $pathbase, string $charset = 'UTF-8')
+    public function __construct(string $pathbase, bool $debug = false)
     {
         parent::__construct();
 
         $this->pathbase = $pathbase;
-        $this->charset = $charset;
+        $this->debug = $debug;
         $this->registerContainer();
     }
     
@@ -54,11 +56,10 @@ class Application extends Container
         if (! $this->booted) {
             $this->boot();
         }
-        
+
         $response = $this->get('kernel')->handle($this->get('request'));
-        var_dump($response);
-        //$emitter = new Emitter();
-        //$emitter->emit($response);
+        $emitter = new Emitter();
+        $emitter->emit($response);
     }
 
     public function getRoutes(): ?RouteInterface
@@ -102,6 +103,7 @@ class Application extends Container
         $this->set('path.app', $this->get('path.base').DIRECTORY_SEPARATOR.'app');
         $this->set('path.resources', $this->get('path.base').DIRECTORY_SEPARATOR.'resources');
         $this->set('charset', $this->charset);
+        $this->set('debug', $this->debug);
         
         $configuration = (new FileSystem())->load($this->get('path.config'))->output();
         if (! $configuration->isEmpty()) {

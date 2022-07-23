@@ -19,9 +19,4 @@ final class ErrorsEvent extends ResponseEvent
     {
         return $this->errors;
     }
-
-    public function handleThrowable(Throwable $e): void
-    {
-        $this->errors = $e;
-    }
 }

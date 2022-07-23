@@ -8,7 +8,7 @@ use Tigloo\Core\Contracts\EventDispatcherInterface;
 use Tigloo\Core\Contracts\EventListenerProviderInterface;
 use Tigloo\Core\Contracts\ServiceProviderInterface;
 use Tigloo\Core\EventDispatcher;
-use Tigloo\EventListener\{SessionListener, RouteListener};
+use Tigloo\EventListener\{ResponseListener, SessionListener, RouteListener, ErrorListener};
 use Tigloo\Core\Runner;
 use Tigloo\Routing\Router;
 use Tigloo\Core\Controller\ResolverController;
@@ -50,5 +50,7 @@ final class HttpServiceProvider implements ServiceProviderInterface, EventListen
     {
         $dispatcher->addSubscriber(new SessionListener());
         $dispatcher->addSubscriber(new RouteListener($app->get('router')));
+        $dispatcher->addSubscriber(new ResponseListener());
+        $dispatcher->addSubscriber(new ErrorListener($app->get('twig'), $app->get('debug')));
     } 
 }
