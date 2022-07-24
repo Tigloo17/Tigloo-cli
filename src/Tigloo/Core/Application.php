@@ -106,9 +106,6 @@ class Application extends Container
         $this->set('charset', $this->charset);
         $this->set('debug', $this->debug);
         $this->set('environment', (new FileSystem())->load($this->get('path.environment'))->output());
-
-        var_dump($this->get('environment'));
-        die();
         
         $configuration = (new FileSystem())->load($this->get('path.config'))->output();
         if (! $configuration->isEmpty()) {
