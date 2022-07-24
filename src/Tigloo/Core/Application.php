@@ -56,7 +56,7 @@ class Application extends Container
         if (! $this->booted) {
             $this->boot();
         }
-
+        
         $response = $this->get('kernel')->handle($this->get('request'));
         $emitter = new Emitter();
         $emitter->emit($response);
@@ -102,8 +102,13 @@ class Application extends Container
         $this->set('path.public', $this->get('path.base').DIRECTORY_SEPARATOR.'public');
         $this->set('path.app', $this->get('path.base').DIRECTORY_SEPARATOR.'app');
         $this->set('path.resources', $this->get('path.base').DIRECTORY_SEPARATOR.'resources');
+        $this->set('path.environment', $this->get('path.base').DIRECTORY_SEPARATOR.'.env');
         $this->set('charset', $this->charset);
         $this->set('debug', $this->debug);
+        $this->set('environment', (new FileSystem())->load($this->get('path.environment'))->output());
+
+        var_dump($this->get('environment'));
+        die();
         
         $configuration = (new FileSystem())->load($this->get('path.config'))->output();
         if (! $configuration->isEmpty()) {

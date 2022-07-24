@@ -50,7 +50,8 @@ final class HttpServiceProvider implements ServiceProviderInterface, EventListen
     {
         $dispatcher->addSubscriber(new SessionListener());
         $dispatcher->addSubscriber(new RouteListener($app->get('router')));
-        $dispatcher->addSubscriber(new ResponseListener());
+        $dispatcher->addSubscriber(new ResponseListener($app->get('charset')));
         $dispatcher->addSubscriber(new ErrorListener($app->get('twig'), $app->get('debug')));
+
     } 
 }

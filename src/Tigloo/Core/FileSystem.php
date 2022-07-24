@@ -5,6 +5,7 @@ namespace Tigloo\Core;
 
 use Tigloo\Collection\Contracts\CollectionInterface;
 use Tigloo\Collection\Collection;
+use M1\Env\Parser;
 use DirectoryIterator;
 use RuntimeException;
 
@@ -51,6 +52,9 @@ final class FileSystem
         switch (pathinfo($file)['extension']) {
             case 'php':
                 return @require $file;
+            case 'env':
+                $parser = new Parser(file_get_contents($file));
+                return $parser->getContent();
         }
     }
 

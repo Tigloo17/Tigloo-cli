@@ -33,7 +33,7 @@ final class Runner
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
         try {
-
+            $request = $request->withHeader('X-Php-Ob-Level', (string) ob_get_level());
             $event = new RequestEvent($request);
             $this->dispatcher->dispatch($event);
 
