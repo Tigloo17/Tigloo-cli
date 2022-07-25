@@ -34,9 +34,7 @@ class TwigExtension extends AbstractExtension
     {
         $session = new Session();
         if ($session->has('csrf_value')) {
-            return $session->get('csrf_value');
+            return $session->get('_csrf')[array_key_first($session->get('_csrf'))];
         }
-        
-        return '<input type="hidden" name="csrf" value="'.$session->get('csrf_token').'">';
     }
 }
