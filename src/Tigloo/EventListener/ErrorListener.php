@@ -6,7 +6,6 @@ namespace Tigloo\EventListener;
 use Tigloo\Core\Contracts\EventSubscriberInterface;
 use Tigloo\Event\ErrorsEvent;
 use GuzzleHttp\Psr7\{Response, Utils, MimeType};
-use Tigloo\Core\JsonResponse;
 use Twig\Environment;
 use Throwable;
 
@@ -42,7 +41,9 @@ class ErrorListener implements EventSubscriberInterface
                 $response = $response->withHeader('Content-Type', MimeType::fromExtension('json'));
                 $json = $this->throwableEncode($this->throwableJson($throwable));
                 $response = $response->withBody(Utils::streamFor($json));
-            } 
+            } else {
+                $response = $response->withBody(Utils::streamFor($this->view->render('error.twig')));
+            }
         }
 
         $event->handleResponse($response);
