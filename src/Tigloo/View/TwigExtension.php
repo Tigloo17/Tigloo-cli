@@ -21,7 +21,7 @@ class TwigExtension extends AbstractExtension
     {
         return [
             new TwigFunction('Route', [$this, 'generateUrlOfRoute']),
-            new TwigFunction('CsrfValue', [$this, 'csrfGenerator'])
+            new TwigFunction('CSRFToken', [$this, 'csrfGenerator'])
         ];
     }
 
@@ -33,8 +33,9 @@ class TwigExtension extends AbstractExtension
     public function csrfGenerator(): string
     {
         $session = new Session();
-        if ($session->has('csrf_value')) {
-            return $session->get('_csrf')[array_key_first($session->get('_csrf'))];
+        if ($session->has('_csrf')) {
+            $key = array_key_first($session->get('_csrf'));
+            return (string) $session->get('_csrf')[$key];
         }
     }
 }
