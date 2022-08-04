@@ -41,26 +41,27 @@ class ResolverController
 
     public function getAttributes(ServerRequestInterface $request, object $controller): array
     {
-        $attributes = ('GET' !== $request->getMethod()) ? $request->getParsedBody() : $request->getAttributes();
+        $attributes = ('GET' !== $request->getMethod()) ? $request->getParsedBody() : $request->getAttribute('_attributes');
         $reflector = $controller->getReflector();
-
+    
         foreach ($reflector->getParameters() as $params) {
             if ($params->isVariadic()) {
                 $parameters[] = $attributes;
                 continue;
             } else {
+                $args = null;
                 foreach ($attributes as $key => $value) {
                     if ($params->getName() === $key) {
                         $args = $value;
                         break;
-                    }
+                    } 
                 }
-
-                if (! empty($args)) {
+                
+                if (isset($args)) {
                     $parameters[] = $args;
                 } else {
                     if ($params->isDefaultValueAvailable()) {
-                        $parameters = $params->getDefaultValue();
+                        $parameters[] = $params->getDefaultValue();
                     } elseif ($params->allowsNull()) {
                         $parameters[] = null;
                     } else {
@@ -69,6 +70,7 @@ class ResolverController
                 }
             }
         }
+
         return $parameters ?? [];
     }
 

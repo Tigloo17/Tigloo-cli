@@ -56,7 +56,9 @@ final class Router
                continue;
             }
 
-            if (($pos = strpos($route->getPattern(), '[')) === false) {
+            if ($route->getPattern() === '*') {
+                $matched = true;
+            } elseif (($pos = strpos($route->getPattern(), '[')) === false) {
                 $matched = strcmp($path, $route->getPattern()) === 0;
             } else {
                 if (strncmp($path, $route->getPattern(), $pos) !== 0) {
@@ -68,18 +70,20 @@ final class Router
 
             if ($matched) {
                 if ($params) {
+                    
                     foreach ($params as $key => $value) {
                         if (is_numeric($key)) {
                             unset($params[$key]);
                             continue;
                         }
+                        
                         $request = $request->withAttribute($key, $value);
                     }
                 }
+
                 return $route;
             }
         }
-      
         return null;
     }
 
@@ -108,14 +112,14 @@ final class Router
         if (preg_match_all($this->regexRoute, $route, $matches, PREG_SET_ORDER)) {
             foreach ($matches as $match) {
                 list($block, $type, $name, $optional) = $match;
-
+                
                 $optional = $optional !== '' ? '?' : null;
                 if (isset($this->regex[$type])) {
                     $type = $this->regex[$type];
                 }
-
+                
                 $pattern = sprintf(
-                    '(?:(%1$s%2$s)%3$s)%3$s',
+                    '%3$s(?:(%1$s%2$s)%3$s)%3$s',
                     ($name !== '' ? "?P<$name>" : null),
                     $type,
                     $optional
