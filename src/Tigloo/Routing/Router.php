@@ -98,7 +98,7 @@ final class Router
             foreach($matches as $match) {
                 list($block, $type, $param, $optional) = $match;
                 if (isset($parameters[$param])) {
-                    $route = str_replace($block, (array_key_exists($param, $parameters)) ? $parameters[$param] : '', $route);
+                    $route = str_replace($block, (array_key_exists($param, $parameters)) ? (string) $parameters[$param] : '', $route);
                 } else {
                     $route = str_replace($block, '', $route);
                 } 
