@@ -21,7 +21,7 @@ final class RouteListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         $this->router->flush();
-        $route = $this->router->match($request->getMethod(), $request->getUri());
+        $route = $this->router->match($request->getMethod(), $request);
 
         if (! $route) {
             throw new RuntimeException('Not Found', 404);

@@ -61,7 +61,7 @@ class ResolverController
                 } else {
                     if ($params->isDefaultValueAvailable()) {
                         $parameters = $params->getDefaultValue();
-                    } elseif ($params->allowNull()) {
+                    } elseif ($params->allowsNull()) {
                         $parameters[] = null;
                     } else {
                         throw new RuntimeException('Bad Request', 400);

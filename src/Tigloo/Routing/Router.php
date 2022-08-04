@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Tigloo\Routing;
 
-use Psr\Http\Message\UriInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Tigloo\Routing\Contracts\RouteInterface;
 use RuntimeException;
 
@@ -45,10 +45,10 @@ final class Router
         }
     }
 
-    public function match(string $method, UriInterface $uri)
+    public function match(string $method, ServerRequestInterface &$request)
     {
         $params = [];
-        $path = rtrim($uri->getPath(), '/');
+        $path = rtrim($request->getUri()->getPath(), '/');
         $path = empty($path) ? '/' : $path;
         
         foreach ($this->routes->getRouteForMatching() as $route) {    
@@ -71,9 +71,10 @@ final class Router
                     foreach ($params as $key => $value) {
                         if (is_numeric($key)) {
                             unset($params[$key]);
+                            continue;
                         }
+                        $request = $request->withAttribute($key, $value);
                     }
-                    $route->setParams($params);
                 }
                 return $route;
             }
