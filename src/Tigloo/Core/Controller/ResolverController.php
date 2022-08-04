@@ -41,7 +41,7 @@ class ResolverController
 
     public function getAttributes(ServerRequestInterface $request, object $controller): array
     {
-        $attributes = ('GET' !== $request->getMethod()) ? $request->getParsedBody() : $request->getAttribute('_attributes');
+        $attributes = ('GET' !== $request->getMethod()) ? $request->getParsedBody() : $request->getAttributes();
         $reflector = $controller->getReflector();
     
         foreach ($reflector->getParameters() as $params) {
