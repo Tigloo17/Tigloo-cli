@@ -23,6 +23,8 @@ final class DatabaseServiceProvider implements ServiceProviderInterface
                 'database' => $app->get('environment')->DB_DATABASE,
                 'username' => $app->get('environment')->DB_USERNAME,
                 'password' => $app->get('environment')->DB_PASSWORD,
+                'charset' => 'utf8mb4',
+                'collation' => 'utf8mb4_unicode_ci',
             ]);
         }));
     }
