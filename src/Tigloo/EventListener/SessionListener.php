@@ -15,6 +15,13 @@ final class SessionListener implements EventSubscriberInterface
     
     private const LENGTH_TOKEN = 16;
 
+    private ?string $csrf_key = null;
+
+    public function __construct(?string $csrf_key)
+    {
+        $this->csrf_key = $csrf_key;
+    }
+
     public function sessionStart(RequestEvent $event)
     {
         $session = $this->session = new Session();
@@ -30,10 +37,9 @@ final class SessionListener implements EventSubscriberInterface
         if (in_array($request->getMethod(), ['POST', 'PUT', 'DELETE', 'PATCH'])) {
             
             $body = $request->getParsedBody();
-            $name = $body['csrf_name'] ?? null;
-            $value = $body['csrf_value'] ?? null;
+            $value = $body['csrf_token'] ?? null;
             
-            if ($name === null || $value === null || $this->validateToken($name, $value) === false) {
+            if ($value === null || $this->validateToken($value) === false) {
                 $request = $this->generateToken($request);
                 throw new RuntimeException('Failed CSRF check!', 400);
             }
@@ -45,22 +51,20 @@ final class SessionListener implements EventSubscriberInterface
 
     private function generateToken(ServerRequestInterface $request): ServerRequestInterface
     {
-        $name = uniqid(self::KEY);
         $value = bin2hex(random_bytes(self::LENGTH_TOKEN));
-        $this->session->set(self::KEY, [$name => $value]);
-        $request = $request->withAttribute('csrf_name', $name);
-        $request = $request->withAttribute('csrf_value', $value);
+        $this->session->set(self::KEY, [$this->csrf_key => $value]);
+        $request = $request->withAttribute('csrf_token', $value);
         
         return $request;
     }
 
-    private function validateToken(?string $name, ?string $value): bool
+    private function validateToken(?string $value): bool
     {
         $pairKey = $this->session->get(self::KEY);
-        if (! isset($pairKey[$name])) {
+        if (! isset($pairKey[$this->csrf_key])) {
             return false;
         }
-        $token = $pairKey[$name];
+        $token = $pairKey[$this->csrf_key];
         return hash_equals($token, $value);
     }
 

@@ -48,7 +48,7 @@ final class HttpServiceProvider implements ServiceProviderInterface, EventListen
 
     public function subscriber(ContainerInterface $app, EventDispatcherInterface $dispatcher): void
     {
-        $dispatcher->addSubscriber(new SessionListener());
+        $dispatcher->addSubscriber(new SessionListener($app->get('environment')->CSRF_KEY));
         $dispatcher->addSubscriber(new RouteListener($app->get('router')));
         $dispatcher->addSubscriber(new ResponseListener($app->get('charset')));
         $dispatcher->addSubscriber(new ErrorListener($app->get('twig'), $app->get('debug')));
