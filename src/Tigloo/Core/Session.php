@@ -42,7 +42,7 @@ final class Session
 
         session_cache_limiter('nocache');
         if (session_start()) {
-            session_regenerate_id();
+            //session_regenerate_id();
             return true;
         }
 
