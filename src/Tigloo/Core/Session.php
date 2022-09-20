@@ -30,6 +30,7 @@ final class Session
             $config['init']['session.cookie_path'] = $cookiepath;
         }
 
+        $this->sendInitialization($config['init']);
         session_register_shutdown();
     }
 
@@ -81,5 +82,18 @@ final class Session
         }
 
         $_SESSION[$name] = $value;
+    }
+
+    private function sendInitialization(array $configurations = []): void
+    {
+        if ($this->isStarted()) {
+            return;
+        }
+
+        foreach ($configurations as $setting => $value) {
+            if (ini_set($setting, (string) $value) === false) {
+                throw new \RuntimeException(sprintf('Impossible de configurer la session avec le paramètre %s', $setting), 500);
+            }
+        }
     }
 }

@@ -24,6 +24,10 @@ final class SessionListener implements EventSubscriberInterface
 
     public function sessionStart(RequestEvent $event)
     {
+        if (! isset($this->csrf_key)) {
+            throw new RuntimeException('CSRF KEY not valid', 500);
+        }
+
         $session = $this->session = new Session();
         $request = $event->getRequest();
         
