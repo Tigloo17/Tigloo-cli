@@ -11,7 +11,6 @@ final class JsonResponse extends Response
 {
     public function withJson(array $data = []) {
         $jsonResponse = [
-            'csrf_name' => array_key_first((new Session())->get('_csrf')),
             'status' => $this->getStatusCode(),
             'message' => $this->getReasonPhrase(),
             'data' => $data
