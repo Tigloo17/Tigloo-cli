@@ -42,11 +42,14 @@ class ResolverController
     public function getAttributes(ServerRequestInterface $request, object $controller): array
     {
         $reflector = $controller->getReflector();
-        $attributes = $request->getAttributes() ?? [];
-       
-        if ('GET' !== $request->getMethod()) {
-            $attributes = array_merge($attributes, $request->getParsedBody());
-        }
+        $attributes = array_filter(
+            array_merge($request->getParsedBody() ?? [], $request->getAttributes() ?? []),
+            function ($k) {
+                if (strpos($k, '_') === false || strpos($k, '_') !== 0) {
+                    return $k;
+                }
+            }, ARRAY_FILTER_USE_KEY
+        );
 
         foreach ($reflector->getParameters() as $params) {
             if ($params->isVariadic()) {
@@ -114,5 +117,10 @@ class ResolverController
                 return $controller;
             }
         };
+    }
+
+    private function cleanKey()
+    {
+
     }
 }
