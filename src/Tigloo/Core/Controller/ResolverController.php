@@ -41,9 +41,13 @@ class ResolverController
 
     public function getAttributes(ServerRequestInterface $request, object $controller): array
     {
-        $attributes = ('GET' !== $request->getMethod()) ? $request->getParsedBody() : $request->getAttributes();
         $reflector = $controller->getReflector();
-    
+        $attributes = $request->getAttributes() ?? [];
+       
+        if ('GET' !== $request->getMethod()) {
+            $attributes = array_merge($attributes, $request->getParsedBody());
+        }
+
         foreach ($reflector->getParameters() as $params) {
             if ($params->isVariadic()) {
                 $parameters[] = $attributes;
