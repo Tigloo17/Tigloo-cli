@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Tigloo\Provider;
 
+use RuntimeException;
 use Tigloo\Container\Contracts\ContainerInterface;
 use Tigloo\Core\Contracts\ServiceProviderInterface;
 
@@ -20,7 +21,17 @@ final class TwigServiceProvider implements ServiceProviderInterface
 
             $twig->addExtension(new \Twig\Extension\DebugExtension());
             $twig->addExtension(new \Tigloo\View\TwigExtension($app));
-            
+
+            if ($app->has('twigExtension')) {
+                foreach ($app->get('twigExtension') as $extend) {
+                    try {
+                        $twig->addExtension(new $extend($app));
+                    } catch(\Exception $e) {
+                        throw new RuntimeException($e->getMessage(), 500);
+                    }
+                }
+            }
+
             return $twig;
         });
 
