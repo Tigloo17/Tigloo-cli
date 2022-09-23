@@ -24,7 +24,7 @@ final class SessionListener implements EventSubscriberInterface
 
     public function sessionStart(RequestEvent $event)
     {
-        if (! isset($this->env->CSRF_KEY)) {
+        if ($this->env->has('CSRF_KEY')) {
             throw new RuntimeException('CSRF KEY not valid', 500);
         }
 
@@ -50,14 +50,14 @@ final class SessionListener implements EventSubscriberInterface
         } else {
             $request = $this->generateToken($request);
         }
-        
+
         $event->handleRequest($request);
     }
 
     private function generateToken(ServerRequestInterface $request): ServerRequestInterface
     {
         $value = bin2hex(random_bytes(self::LENGTH_TOKEN));
-        $this->session->set(self::KEY, [$this->env->CSRF_KEY => $value]);
+        $this->session->set(self::KEY, [$this->env->get('CSRF_KEY') => $value]);
         $request = $request->withAttribute('csrf_token', $value);
         
         return $request;
@@ -66,10 +66,10 @@ final class SessionListener implements EventSubscriberInterface
     private function validateToken(?string $value): bool
     {
         $pairKey = $this->session->get(self::KEY);
-        if (! isset($pairKey[$this->env->CSRF_KEY])) {
+        if (! isset($pairKey[$this->env->get('CSRF_KEY')])) {
             return false;
         }
-        $token = $pairKey[$this->env->CSRF_KEY];
+        $token = $pairKey[$this->env->get('CSRF_KEY')];
         return hash_equals($token, $value);
     }
 
@@ -81,7 +81,7 @@ final class SessionListener implements EventSubscriberInterface
             $matched
         );
 
-        return $matched[1] ? (rtrim($this->env->APP_URL, '/') == $matched[1]) : false;
+        return $matched[1] ? (rtrim($this->env->get('APP_URL'), '/') == $matched[1]) : false;
     }
 
     public function getSubscriberForEvent(): array
