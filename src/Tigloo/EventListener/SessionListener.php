@@ -24,7 +24,7 @@ final class SessionListener implements EventSubscriberInterface
 
     public function sessionStart(RequestEvent $event)
     {
-        if ($this->env->has('CSRF_KEY')) {
+        if (! $this->env->has('CSRF_KEY')) {
             throw new RuntimeException('CSRF KEY not valid', 500);
         }
 
