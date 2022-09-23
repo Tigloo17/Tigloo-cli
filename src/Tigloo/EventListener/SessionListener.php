@@ -15,16 +15,16 @@ final class SessionListener implements EventSubscriberInterface
     
     private const LENGTH_TOKEN = 16;
 
-    private ?string $csrf_key = null;
+    private $env;
 
-    public function __construct(?string $csrf_key)
+    public function __construct($env)
     {
-        $this->csrf_key = $csrf_key;
+        $this->env = $env;
     }
 
     public function sessionStart(RequestEvent $event)
     {
-        if (! isset($this->csrf_key)) {
+        if (! isset($this->env->CSRF_KEY)) {
             throw new RuntimeException('CSRF KEY not valid', 500);
         }
 
@@ -43,20 +43,21 @@ final class SessionListener implements EventSubscriberInterface
             $body = $request->getParsedBody();
             $value = $body['csrf_token'] ?? null;
             
-            if ($value === null || $this->validateToken($value) === false) {
-                $request = $this->generateToken($request);
+            if ($this->validateReferer($request) === false && ($value === null || $this->validateToken($value) === false)) {
                 throw new RuntimeException('Failed CSRF check!', 400);
             }
+            
+        } else {
+            $request = $this->generateToken($request);
         }
-
-        $request = $this->generateToken($request);
+        
         $event->handleRequest($request);
     }
 
     private function generateToken(ServerRequestInterface $request): ServerRequestInterface
     {
         $value = bin2hex(random_bytes(self::LENGTH_TOKEN));
-        $this->session->set(self::KEY, [$this->csrf_key => $value]);
+        $this->session->set(self::KEY, [$this->env->CSRF_KEY => $value]);
         $request = $request->withAttribute('csrf_token', $value);
         
         return $request;
@@ -65,11 +66,22 @@ final class SessionListener implements EventSubscriberInterface
     private function validateToken(?string $value): bool
     {
         $pairKey = $this->session->get(self::KEY);
-        if (! isset($pairKey[$this->csrf_key])) {
+        if (! isset($pairKey[$this->env->CSRF_KEY])) {
             return false;
         }
-        $token = $pairKey[$this->csrf_key];
+        $token = $pairKey[$this->env->CSRF_KEY];
         return hash_equals($token, $value);
+    }
+
+    private function validateReferer($request): bool
+    {
+        preg_match(
+            '/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/', 
+            $request->getServerParams()['HTTP_REFERER'], 
+            $matched
+        );
+
+        return $matched[1] ? (rtrim($this->env->APP_URL, '/') == $matched[1]) : false;
     }
 
     public function getSubscriberForEvent(): array
