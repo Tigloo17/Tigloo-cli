@@ -79,7 +79,7 @@ final class SessionListener implements EventSubscriberInterface
             '/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/', 
             $request->getServerParams()['HTTP_REFERER'], 
             $matched
-        );
+        ); 
 
         return $matched[1] ? (rtrim($this->env->get('APP_URL'), '/') == $matched[1]) : false;
     }
