@@ -75,6 +75,10 @@ final class SessionListener implements EventSubscriberInterface
 
     private function validateReferer($request): bool
     {
+        if ($this->env->has('DEBUG') && $this->env->get('DEBUG')) {
+            return $this->env->get('DEBUG');
+        }
+        
         preg_match(
             '/^(?:https?:\/\/)?(?:[^@\/\n]+@)?(?:www\.)?([^:\/?\n]+)/', 
             $request->getServerParams()['HTTP_REFERER'], 
