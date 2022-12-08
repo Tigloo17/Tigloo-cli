@@ -34,6 +34,17 @@ abstract class AbstractController
         return $response;
     }
 
+    public function redirect(string $name, array $parameters = [], ?ResponseInterface $response = null): ResponseInterface
+    {
+        if (null === $response) {
+            $response = new Response();
+        }
+
+        $response = $response->withStatus(307);
+        $response = $response->withHeader('location', $this->getApp()->get('router')->generate($name, $parameters));
+        return $response;
+    }
+
     public function json(array $data = [], int $code = 200, ?ResponseInterface $response = null): ResponseInterface
     {
         if (null === $response) {

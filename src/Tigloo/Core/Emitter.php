@@ -40,7 +40,7 @@ class Emitter
             $response->getProtocolVersion(),
             $response->getStatusCode(),
             $response->getReasonPhrase() ?? ''
-        ), true, $response->getStatusCode());
+        ), true, $response->getStatusCode()); // if code 300 ??
     }
 
     private function emitBody(ResponseInterface $response): void
