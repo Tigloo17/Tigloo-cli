@@ -21,6 +21,9 @@ class Emitter
     private function emitHeaders(ResponseInterface $response): void
     {
         foreach ($response->getHeaders() as $name => $headers) {
+            if (strtolower($name) === 'set-cookie') {
+                $cookies = $headers;
+            }
             $first = true;
             foreach ($headers as $header) {
                 header(sprintf(
@@ -31,6 +34,8 @@ class Emitter
                 $first = false;
             }
         }
+
+        $this->emitCookies($cookies ?? []);
     }
 
     private function emitStatus(ResponseInterface $response): void
@@ -54,6 +59,13 @@ class Emitter
         $body->rewind();
         while(! $body->eof()) {
             echo $body->read(8192);
+        }
+    }
+
+    private function emitCookies(array $cookies): void
+    {
+        foreach($cookies as $cookie) {
+            
         }
     }
 }

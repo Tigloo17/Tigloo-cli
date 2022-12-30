@@ -20,7 +20,7 @@ class ResponseListener implements EventSubscriberInterface
     {
         $request = $event->getRequest();
         $response = $event->getResponse();
-
+        
         if (! $event->getRequest()->hasHeader('Content-Language')) {
             $response = $response->withHeader('Content-Language', 'fr-FR');
         }
@@ -29,7 +29,7 @@ class ResponseListener implements EventSubscriberInterface
             $mimeType = MimeType::fromExtension('htm').'; charset='.$this->charset;
             $response = $response->withHeader('Content-Type', $mimeType);
         }
-
+        
         $event->handleResponse($response);
     }
 
