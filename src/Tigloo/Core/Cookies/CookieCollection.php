@@ -23,11 +23,9 @@ final class CookieCollection implements IteratorAggregate, Countable
         }
     }
 
-    public function add(Cookie $cookie): self
+    public function add(Cookie $cookie): void
     {
-        $new = clone $this;
-        $new[$cookie->getName()] = $cookie;
-        return $new;
+        $this->cookies[$cookie->getName()] = $cookie;
     }
 
     public function has(string $name): bool
