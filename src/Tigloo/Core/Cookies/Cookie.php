@@ -152,7 +152,7 @@ final class Cookie
     public function getOptions(): array
     {
         $options = [
-            'expires' => $this->expire->format('U'),
+            'expires' => $this->expires->format('U'),
             'path' => $this->path,
             'domain' => $this->domain,
             'secure' => $this->secure,
