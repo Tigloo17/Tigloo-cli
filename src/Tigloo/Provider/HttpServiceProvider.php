@@ -12,8 +12,8 @@ use Tigloo\EventListener\{CookieListener, ResponseListener, SessionListener, Rou
 use Tigloo\Core\Runner;
 use Tigloo\Routing\Router;
 use Tigloo\Core\Controller\ResolverController;
-use GuzzleHttp\Psr7\ServerRequest;
 use Tigloo\Core\Cookies\CookieCollection;
+use GuzzleHttp\Psr7\ServerRequest;
 
 final class HttpServiceProvider implements ServiceProviderInterface, EventListenerProviderInterface
 {
@@ -46,15 +46,18 @@ final class HttpServiceProvider implements ServiceProviderInterface, EventListen
             return new Router($app->getRoutes());
         });
 
-        $app->set('cookie', function () {
+        $app->set('cookies.factory', $app->factory(function ($app) {
             return new CookieCollection();
+        }));
+
+        $app->set('cookies', function ($app) {
+            return $app->get('cookies.factory');
         });
     }
 
     public function subscriber(ContainerInterface $app, EventDispatcherInterface $dispatcher): void
     {
         $dispatcher->addSubscriber(new SessionListener($app->get('environment')));
-        $dispatcher->addSubscriber(new CookieListener($app->get('cookie')));
         $dispatcher->addSubscriber(new RouteListener($app->get('router')));
         $dispatcher->addSubscriber(new ResponseListener($app->get('charset')));
         $dispatcher->addSubscriber(new ErrorListener($app->get('twig'), $app->get('debug')));

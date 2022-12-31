@@ -59,7 +59,7 @@ class Application extends Container
         
         $response = $this->get('kernel')->handle($this->get('request'));
         $emitter = new Emitter();
-        $emitter->emit($response);
+        $emitter->emit($response, $this->get('cookies'));
     }
 
     public function getRoutes(): ?RouteInterface
