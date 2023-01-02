@@ -43,6 +43,10 @@ final class SessionListener implements EventSubscriberInterface
             $body = $request->getParsedBody();
             $value = $body['csrf_token'] ?? null;
 
+            if ($value === null || $this->validateToken($value) === false) {
+                throw new RuntimeException('Failed CSRF check!', 400);
+            }
+
             if ($this->validateReferer($request) === false || ($value === null || $this->validateToken($value) === false)) {
                 throw new RuntimeException('Failed CSRF check!', 400);
             }
@@ -73,6 +77,9 @@ final class SessionListener implements EventSubscriberInterface
         return hash_equals($token, $value);
     }
 
+    /**
+     * @deprecated
+     */
     private function validateReferer($request): bool
     {
         if ($this->env->has('DEBUG') && $this->env->get('DEBUG')) {
