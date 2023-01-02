@@ -47,9 +47,9 @@ final class SessionListener implements EventSubscriberInterface
                 throw new RuntimeException('Failed CSRF check!', 400);
             }
 
-            if ($this->validateReferer($request) === false || ($value === null || $this->validateToken($value) === false)) {
+            /*if ($this->validateReferer($request) === false || ($value === null || $this->validateToken($value) === false)) {
                 throw new RuntimeException('Failed CSRF check!', 400);
-            }
+            }*/
             
         } else {
             $request = $this->generateToken($request);
