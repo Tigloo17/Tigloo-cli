@@ -6,10 +6,12 @@ namespace Tigloo\Routing;
 use Psr\Http\Message\ServerRequestInterface;
 use Tigloo\Routing\Contracts\RouteInterface;
 use RuntimeException;
+use Tigloo\Core\Contracts\EventDispatcherInterface;
 
 final class Router
 {
     private RouteInterface $routes;
+    private EventDispatcherInterface $dispatcher;
     private array $names = [];
     private string $regexRoute = '`\[([^:\]]*+)(?::([^:\]]*+))?\](\?|)`';
     private array $regex = [
@@ -20,9 +22,10 @@ final class Router
         '' => '[^/\.]++'
     ];
 
-    public function __construct(RouteInterface $routes)
+    public function __construct(RouteInterface $routes, EventDispatcherInterface $dispatcher)
     {
         $this->routes = $routes;
+        $this->dispatcher = $dispatcher;
     }
 
     public function flush(): void
@@ -80,7 +83,11 @@ final class Router
                         $request = $request->withAttribute($key, $value);
                     }
                 }
-
+                // middleware Event...
+                if ($route->hasEvent()) {
+                    $event = $route->getEvent();
+                    $this->dispatcher->dispatch(new $event($request));
+                }
                 return $route;
             }
         }

@@ -13,6 +13,8 @@ final class Route
     
     private object|string $action;
 
+    private ?object $event;
+
     public function __construct(string $method, string $pattern, object|string $action)
     {
         $this->withMethod(strtoupper($method));
@@ -28,6 +30,24 @@ final class Route
     public function withName(string $name): Route
     {
         $this->name = $name;
+        return $this;
+    }
+
+    public function getEvent(): ?object
+    {
+        return $this->event;
+    }
+
+    public function hasEvent(): bool
+    {
+       return isset($this->event);
+    }
+
+    public function withEvent(?string $event): Route
+    {
+        if ($event !== null && class_exists($event)) {
+            $this->event = $event;
+        }
         return $this;
     }
 

@@ -43,7 +43,10 @@ final class HttpServiceProvider implements ServiceProviderInterface, EventListen
         });
 
         $app->set('router', function ($app) {
-            return new Router($app->getRoutes());
+            return new Router(
+                $app->getRoutes(),
+                $app->get('event.dispatcher')
+            );
         });
 
         $app->set('cookies.factory', $app->factory(function ($app) {
