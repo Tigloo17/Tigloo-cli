@@ -40,7 +40,7 @@ final class Route
 
     public function hasEvent(): bool
     {
-       return empty($this->events);
+       return !empty($this->events);
     }
 
     public function withEvent(?array $events): Route
