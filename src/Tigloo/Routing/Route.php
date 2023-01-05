@@ -13,7 +13,7 @@ final class Route
     
     private object|string $action;
 
-    private ?object $event;
+    private ?string $event;
 
     public function __construct(string $method, string $pattern, object|string $action)
     {
@@ -33,7 +33,7 @@ final class Route
         return $this;
     }
 
-    public function getEvent(): ?object
+    public function getEvent(): object|string
     {
         return $this->event;
     }
