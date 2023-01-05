@@ -85,8 +85,9 @@ final class Router
                 }
                 // middleware Event...
                 if ($route->hasEvent()) {
-                    $event = $route->getEvent();
-                    $this->dispatcher->dispatch(new $event($request));
+                    foreach ($route->getEvent() as $event) {
+                        $this->dispatcher->dispatch(new $event($request));
+                    }
                 }
                 return $route;
             }

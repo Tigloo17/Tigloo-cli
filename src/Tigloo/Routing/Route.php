@@ -13,7 +13,7 @@ final class Route
     
     private object|string $action;
 
-    private ?string $event;
+    private array $events = [];
 
     public function __construct(string $method, string $pattern, object|string $action)
     {
@@ -33,20 +33,24 @@ final class Route
         return $this;
     }
 
-    public function getEvent(): object|string
+    public function getEvent(): array
     {
-        return $this->event;
+        return $this->events;
     }
 
     public function hasEvent(): bool
     {
-       return isset($this->event);
+       return empty($this->events);
     }
 
-    public function withEvent(?string $event): Route
+    public function withEvent(?array $events): Route
     {
-        if ($event !== null && class_exists($event)) {
-            $this->event = $event;
+        if ($events !== null) {
+            foreach ($events as $event) {
+                if (class_exists($event)) {
+                    $this->events[] = $event;
+                }
+            }
         }
         return $this;
     }
