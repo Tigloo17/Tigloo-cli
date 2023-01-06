@@ -40,7 +40,7 @@ abstract class AbstractController
             $response = new Response();
         }
 
-        $response = $response->withStatus(307);
+        $response = $response->withStatus(302);
         $response = $response->withHeader('location', $this->getApp()->get('router')->generate($name, $parameters));
         return $response;
     }
