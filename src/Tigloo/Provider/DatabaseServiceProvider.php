@@ -5,7 +5,6 @@ namespace Tigloo\Provider;
 
 use Tigloo\Container\Contracts\ContainerInterface;
 use Tigloo\Core\Contracts\ServiceProviderInterface;
-use Tigloo\Core\Model;
 use Medoo\Medoo;
 
 final class DatabaseServiceProvider implements ServiceProviderInterface
