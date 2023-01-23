@@ -156,7 +156,7 @@ final class Cookie
             'path' => $this->path,
             'domain' => $this->domain,
             'secure' => $this->secure,
-            'httponly' => $this->httponly,
+            'httponly' => $this->httpOnly,
         ];
 
         if ($this->sameSite !== null) {
