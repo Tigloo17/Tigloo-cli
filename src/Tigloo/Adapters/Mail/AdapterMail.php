@@ -72,6 +72,7 @@ final class AdapterMail
             $name = is_int((int) $it->key()) ? null : $it->key();
             $this->message->setTo($it->current(), $name);
             $this->transport->send($this->message);
+            $it->next();
         }
     }
 }
