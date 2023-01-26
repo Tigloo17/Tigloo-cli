@@ -56,6 +56,12 @@ final class AdapterMail
 
     public function setBody(string|AdapterBodyMail $body): AdapterMail
     {
+        if ($body instanceof AdapterBodyMail) {
+            $body = $body->toMessage();
+            $contentType = $this->message->getHeaders()->get('Content-type');
+            $contentType->setType('multipart/related');
+        }
+
         $this->message->setBody($body);
         return $this;
     }
