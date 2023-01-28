@@ -185,13 +185,13 @@ final class AdapterMail
             while($it->valid()) {
                 try {
                     $this->mailer->addAddress($it->key(), $it->current());
-                    $this->send();
+                    $this->mailer->send();
                     $this->mailer->clearAddresses();
                     $this->errors[$it->key()] = $this->mailer->ErrorInfo;
-                    $it->next();
                 } catch (Exception $e) {
                     $this->errors[$it->key()] = $e->getMessage();
                 }
+                $it->next();
             }
 
             if ($this->getConnectionAlive()) {
