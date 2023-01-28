@@ -3,82 +3,216 @@ declare(strict_types = 1);
 
 namespace Tigloo\Adapters\Mail;
 
-use Laminas\Mail\Message;
-use Laminas\Mail\Transport\Smtp;
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 use Tigloo\Collection\Collection;
 
 final class AdapterMail
 {
-    private Message $message;
-    private Smtp $transport;
+    private PHPMailer $mailer;
     private Collection $recipients;
 
-    public function __construct(private AdapterSmtpMail $options)
+    public function __construct(private array $options = [])
     {
-        $this->message = new Message();
-        $this->transport = new Smtp($this->options->getOptions());
+        $this->mailer = new PHPMailer();
         $this->recipients = new Collection();
+        $this->mailer->isSMTP(); // par défault..
+        $this->mailer->SMTPAuth = true; // par défault..
+
+        // connection
+        $this->setHost($this->options['host'] ?? null);
+        $this->setPort($this->options['port'] ?? 587);
+        $this->setUsername($this->options['username'] ?? null);
+        $this->setPassword($this->options['password'] ?? null);
+        $this->setEncryption($this->options['encryption'] ?? 'tls');
     }
 
-    public function setTo(string|array $to, ?string $name = null): AdapterMail
+    public function setHost(?string $host): AdapterMail
     {
-        if (is_string($to)) {
-            $to = [($name ?? 0) => $to];
+        if ($host !== null) {
+            $this->mailer->Host = $host;
         }
+        return $this;
+    }
 
-        foreach ($to as $key => $address) {
-            $this->recipients->add($key, $address);
+    public function getHost(): string
+    {
+        return $this->mailer->Host;
+    }
+
+    public function setPort(int $port): AdapterMail
+    {
+        $this->mailer->Port = $port;
+        return $this;
+    }
+
+    public function getPort(): int
+    {
+        return (int) $this->mailer->Port;
+    }
+
+    public function setUsername(?string $username): AdapterMail
+    {
+        if ($username !== null) {
+            $this->mailer->Username = $username;
         }
+        return $this;
+    }
+
+    public function getUsername(): ?string
+    {
+        return $this->mailer->Username;
+    }
+
+    public function setPassword(?string $password): AdapterMail
+    {
+        if ($password !== null) {
+            $this->mailer->Password = $password;
+        }
+        return $this;
+    }
+
+    public function setEncryption(string $encryption = 'tls'): AdapterMail
+    {
+        $this->mailer->SMTPSecure = $encryption;
+        return $this;
+    }
+
+    public function getEncryption(): string
+    {
+        return $this->mailer->SMTPSecure;
+    }
+
+    public function setConnectionAlive(bool $alive = false): AdapterMail
+    {
+        $this->mailer->SMTPKeepAlive = $alive;
+        return $this;
+    }
+
+    public function getConnectionAlive(): bool
+    {
+        return $this->mailer->SMTPKeepAlive;
+    }
+
+    public function addTo(string $to, ?string $name = null): AdapterMail
+    {
+        $this->recipients->add($to, $name ?? '');
+        return $this;
+    }
+
+    public function setReplyTo(string $to, ?string $name = null): AdapterMail
+    {
+        $this->mailer->addReplyTo($to, $name ?? '');
         return $this;
     }
 
     public function setFrom(string $from, ?string $name = null): AdapterMail
     {
-        $this->message->addFrom($from, $name);
+        $this->mailer->setFrom($from, $name);
         return $this;
     }
 
-    public function getFrom()
+    public function getFrom(): array
     {
-        return $this->message->getFrom();
+       return [
+            'from' => $this->mailer->From,
+            'name' => $this->mailer->FromName
+       ];
     }
 
-    public function setSubject(string $subject): AdapterMail
+    public function setSubject(?string $subject): AdapterMail
     {
-        $this->message->setSubject($subject);
+        if ($subject !== null) {
+            $this->mailer->Subject = $subject;
+        }
         return $this;
     }
 
-    public function getSubject()
+    public function getSubject(): string
     {
-        return $this->message->getSubject();
+        return $this->mailer->Subject;
     }
 
-    public function setBody(string|AdapterBodyMail $body): AdapterMail
+    public function setBody(
+        string $body, 
+        bool $isHtml = false, 
+        ...$attachmentImages
+    ): AdapterMail
     {
-        if ($body instanceof AdapterBodyMail) {
-            $body = $body->toMessage();
-            $contentType = $this->message->getHeaders()->get('Content-type');
-            $contentType->setType('multipart/related');
+        $this->mailer->isHTML($isHtml);
+        if (! $isHtml && $this->mailer->Body !== '') {
+            $this->mailer->AltBody = $body;
+        } else {
+            $this->mailer->Body = $body;
+        }
+        
+        foreach ($attachmentImages as $attachment) {
+            $infoImage = @getimagesize($attachment);
+            if (file_exists($attachment) && @is_array($infoImage)) {
+                $this->mailer->addEmbeddedImage(
+                    $attachment, 
+                    $this->camelCase(pathinfo($attachment)['filename']), 
+                    pathinfo($attachment)['basename'], 
+                    $this->mailer::ENCODING_BASE64, 
+                    $infoImage['mime']
+                );
+            }
         }
 
-        $this->message->setBody($body);
         return $this;
     }
 
-    public function getBody()
+    public function getBody(): string
     {
-        return $this->message->getBody();
+        return $this->mailer->Body;
     }
 
-    public function send()
+    public function setAttachmentFile(...$files): AdapterMail
     {
-        $it = $this->recipients->getIterator();
-        while($it->valid()) {
-            $name = is_int((int) $it->key()) ? null : $it->key();
-            $this->message->setTo($it->current(), $name);
-            $this->transport->send($this->message);
-            $it->next();
+        foreach ($files as $file) {
+            if (file_exists($file)) {
+                $this->mailer->addAttachment($file, pathinfo($file)['basename']);
+            }
+        }
+        return $this;
+    }
+
+    public function send(): void
+    {
+        if (! $this->recipients->isEmpty()) {
+            $it = $this->recipients->getIterator();
+            $it->rewind();
+            while($it->valid()) {
+                $this->mailer->addAddress($it->key(), $it->current());
+                $this->toSended();
+                $this->mailer->clearAddresses();
+                $it->next();
+            }
+        } else {
+            $this->toSended();
+        }
+        
+        if ($this->getConnectionAlive()) {
+            $this->mailer->smtpClose();
+        }
+        return;
+    }
+
+    private function camelCase(string $str): string
+    {
+        return str_replace(
+            ' ',
+            '',
+            ucwords(str_replace(array('-', '_'), ' ', $str))
+        );
+    }
+
+    private function toSended(): bool|string
+    {
+        try {
+            return $this->mailer->send();
+        } catch (Exception $e) {
+            return $e->getMessage();
         }
     }
 }

@@ -17,15 +17,13 @@ final class MailServiceProvider implements ServiceProviderInterface
         });
 
         $app->set('mail.factory', $app->factory(function ($app) {
-            $connection = new AdapterSmtpMail([
-                'host' => $app->get('environment')->MAIL_HOST ?? '127.0.0.1',
+            return new AdapterMail([
+                'host' => $app->get('environment')->MAIL_HOST ?? null,
                 'port' => $app->get('environment')->MAIL_PORT ?? 465,
-                'username' => $app->get('environment')->MAIL_USERNAME ?? 'user',
-                'password' => $app->get('environment')->MAIL_PASSWORD ?? 'root',
+                'username' => $app->get('environment')->MAIL_USERNAME ?? null,
+                'password' => $app->get('environment')->MAIL_PASSWORD ?? null,
                 'encryption' => $app->get('environment')->MAIL_ENCRYPTION ?? 'ssl',
             ]);
-            
-            return new AdapterMail($connection);
         }));
     }
 }
