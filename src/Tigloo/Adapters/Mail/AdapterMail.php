@@ -11,6 +11,7 @@ final class AdapterMail
 {
     private PHPMailer $mailer;
     private Collection $recipients;
+    private array $errors = [];
 
     public function __construct(private array $options = [])
     {
@@ -179,23 +180,29 @@ final class AdapterMail
 
     public function send(): void
     {
-        if (! $this->recipients->isEmpty()) {
-            $it = $this->recipients->getIterator();
+        $it = $this->recipients->getIterator();
             $it->rewind();
             while($it->valid()) {
-                $this->mailer->addAddress($it->key(), $it->current());
-                $this->toSended();
-                $this->mailer->clearAddresses();
-                $it->next();
+                try {
+                    $this->mailer->addAddress($it->key(), $it->current());
+                    $this->send();
+                    $this->mailer->clearAddresses();
+                    $this->errors[$it->key()] = $this->mailer->ErrorInfo;
+                    $it->next();
+                } catch (Exception $e) {
+                    $this->errors[$it->key()] = $e->getMessage();
+                }
             }
-        } else {
-            $this->toSended();
-        }
-        
-        if ($this->getConnectionAlive()) {
-            $this->mailer->smtpClose();
-        }
-        return;
+
+            if ($this->getConnectionAlive()) {
+                $this->mailer->smtpClose();
+            }
+            return;
+    }
+
+    public function errorsInfo(): array
+    {
+        return $this->errors;
     }
 
     private function camelCase(string $str): string
@@ -205,14 +212,5 @@ final class AdapterMail
             '',
             ucwords(str_replace(array('-', '_'), ' ', $str))
         );
-    }
-
-    private function toSended(): bool|string
-    {
-        try {
-            return $this->mailer->send();
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
     }
 }
