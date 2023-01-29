@@ -19,6 +19,7 @@ final class AdapterMail
         $this->recipients = new Collection();
         $this->mailer->isSMTP(); // par défault..
         $this->mailer->SMTPAuth = true; // par défault..
+        $this->mailer->CharSet = PHPMailer::CHARSET_UTF8;
 
         // connection
         $this->setHost($this->options['host'] ?? null);
@@ -184,10 +185,12 @@ final class AdapterMail
             $it->rewind();
             while($it->valid()) {
                 try {
-                    $this->mailer->addAddress($it->key(), $it->current());
-                    $this->mailer->send();
-                    $this->mailer->clearAddresses();
-                    $this->errors[$it->key()] = $this->mailer->ErrorInfo;
+                    if (PHPMailer::validateAddress($it->key())) {
+                        $this->mailer->addAddress($it->key(), $it->current());
+                        $this->mailer->send();
+                        $this->mailer->clearAddresses();
+                        $this->errors[$it->key()] = $this->mailer->ErrorInfo;
+                    }
                 } catch (Exception $e) {
                     $this->errors[$it->key()] = $e->getMessage();
                 }
