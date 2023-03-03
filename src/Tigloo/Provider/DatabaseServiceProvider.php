@@ -24,6 +24,9 @@ final class DatabaseServiceProvider implements ServiceProviderInterface
                 'password' => $app->get('environment')->DB_PASSWORD,
                 'charset' => 'utf8mb4',
                 'collation' => 'utf8mb4_unicode_ci',
+                'option' => [
+                    \PDO::ATTR_EMULATE_PREPARES => false
+                ]
             ]);
         }));
     }
