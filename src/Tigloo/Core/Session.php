@@ -84,6 +84,17 @@ final class Session
         $_SESSION[$name] = $value;
     }
 
+    public function remove(string $name): void
+    {
+        if (! $this->isStarted()) {
+            return;
+        }
+        
+        if ($this->has($name)) {
+            unset($_SESSION[$name]);
+        }
+    }
+
     private function sendInitialization(array $configurations = []): void
     {
         if ($this->isStarted()) {
